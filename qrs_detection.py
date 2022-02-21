@@ -36,7 +36,6 @@ class qrs ():
         lista = list(data > max_thr)
         start_point = lista.index(next(filter(lambda i: i == 1, lista)))
         while(start_point + searching_range < len(data)):
-            print("k={}".format(k))
             segment = data[start_point: (start_point+searching_range)]
             peaks = find_peaks(segment)[0]
             troughs = find_peaks(-segment)[0]
@@ -84,7 +83,7 @@ class qrs ():
         S_points = []
 
         for i in range(len(fiducial_points)):
-            fp = fiducial_points[i]
+            fp = int(fiducial_points[i])
             S_found = False
             while(S_found == False):
                 segment_statistics = data[(fp-offset): (fp+offset)]
@@ -93,14 +92,37 @@ class qrs ():
                 mean_amplitude = np.mean(segment_statistics)
                 '''step 2'''
                 S_start = find_peaks(data[fp: (fp+offset)], height=amplitude*0.5)[0]
-                print(S_start)
-                if(S_start):
+                if(len(S_start)==0):
                     peaks_crest = data[fp:(fp+offset)]
                     minimum = np.min(peaks_crest)
                     if(minimum < mean_amplitude):
-                        S_points.append(minimum)
+                        S_points.append(np.argmin(peaks_crest) + fp)
+                        S_found = True
                 else:
                     fp = S_start
+
+        return np.array(S_points)
+
+    def S_offset(self):
+        data = self.enhancement_mask()
+        S_points = self.S_point_detection()
+        first_der = np.gradient(data)
+        S_offsets = []
+        for i in range(len(S_points)):
+            sp = S_points[i]
+            next_p = sp + 1
+            val_sp = first_der[sp]
+            val_np = first_der[next_p]
+            while(val_sp *  val_np>0):
+                sp = next_p
+                next_p = sp + 1
+                val_sp = first_der[sp]
+                val_np = first_der[next_p]
+            S_offsets.append(next_p)
+        return np.array(S_offsets)
+
+
+
 
 
 

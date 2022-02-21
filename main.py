@@ -35,7 +35,7 @@ files.sort(key=natural_keys)
 
 # 2. DATA PARAMETERS
 
-lim = 1000
+lim = 500
 fs = 500
 
 # a) ECG parameters
@@ -61,10 +61,18 @@ data_ecg = data_ecg.reshape(data_ecg.shape[0])
 
 qrs = qrs(data_ecg, fs)
 new_data = qrs.enhancement_mask()
+new_data_diff = np.gradient(new_data)
 points = qrs.crest_and_troughs()
-plt.plot(np.arange(len(new_data)), data_ecg*1000)
+S_points = qrs.S_point_detection()
+S_offsets = qrs.S_offset()
+# plt.plot(np.arange(len(new_data)), data_ecg*1000)
 plt.plot(np.arange(len(new_data)), new_data)
+plt.plot(np.arange(len(new_data)), new_data_diff)
+
 plt.scatter(points, new_data[points], color="tab:red")
+plt.scatter(S_points, new_data[S_points], color="tab:green")
+plt.scatter(S_offsets, new_data[S_offsets], color="tab:green")
+
 plt.show()
 exit()
 
