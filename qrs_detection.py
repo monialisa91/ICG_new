@@ -81,16 +81,26 @@ class qrs ():
         fiducial_points = self.crest_and_troughs()
         data = self.enhancement_mask()
         offset = int(0.12 * self.fs)
+        S_points = []
 
         for i in range(len(fiducial_points)):
             fp = fiducial_points[i]
-            segment = data[(fp-offset): (fp+offset)]
-            '''step 1'''
-            amplitude = np.max(segment)
-            mean_amplitude = np.mean(segment)
-            '''step 2'''
-            peaks = find_peaks(segment, height=amplitude*0.5)[0]
-            peaks_crest = peaks[peaks>fp]
+            S_found = False
+            while(S_found == False):
+                segment_statistics = data[(fp-offset): (fp+offset)]
+                '''step 1'''
+                amplitude = np.max(segment_statistics)
+                mean_amplitude = np.mean(segment_statistics)
+                '''step 2'''
+                S_start = find_peaks(data[fp: (fp+offset)], height=amplitude*0.5)[0]
+                print(S_start)
+                if(S_start):
+                    peaks_crest = data[fp:(fp+offset)]
+                    minimum = np.min(peaks_crest)
+                    if(minimum < mean_amplitude):
+                        S_points.append(minimum)
+                else:
+                    fp = S_start
 
 
 
