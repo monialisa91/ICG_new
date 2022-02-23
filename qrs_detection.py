@@ -28,6 +28,7 @@ class qrs ():
     def crest_and_troughs(self, plot=False):
         searching_range = int(0.3*self.fs)
         data = self.enhancement_mask()
+        print(len(data))
         max_thr = 0.22
         min_thr = 0.4
         thr2 = 0.52
@@ -36,6 +37,7 @@ class qrs ():
         lista = list(data > max_thr)
         start_point = lista.index(next(filter(lambda i: i == 1, lista)))
         while(start_point + searching_range < len(data)):
+            # print(k)
             segment = data[start_point: (start_point+searching_range)]
             peaks = find_peaks(segment)[0]
             troughs = find_peaks(-segment)[0]
@@ -101,7 +103,7 @@ class qrs ():
                 else:
                     fp = S_start
 
-        return np.array(S_points)
+        return np.array(S_points) + 2
 
     def S_offset(self):
         data = self.enhancement_mask()

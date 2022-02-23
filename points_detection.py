@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
+from qrs_detection import qrs
 
 
 class points():
@@ -23,8 +24,10 @@ class points():
         plt.scatter(peaks_thr2, data_pt[peaks_thr2])
         plt.axhline(thr)
         plt.show()'''
-
+        # QRS = qrs(self.data_ecg, self.fs)
+        # R_points = QRS.crest_and_troughs()
         return peaks_thr2
+
 
     def T_point_detection(self):
         data = self.data_ecg
@@ -58,7 +61,7 @@ class points():
             T_point = T_points[i]
             minimum = False
             j = 0
-            while(minimum == False):
+            while(minimum == False and (T_point + j + 2) < len(self.data_ecg)):
                 fp = self.data_ecg[T_point + j]
                 mp = self.data_ecg[T_point + j + 1]
                 lp = self.data_ecg[T_point + j + 2]
@@ -139,18 +142,18 @@ class points():
         for i in range(len(S_points)):
             S_point = S_points[i]
             maks = False
-            j = 0
+            j = 1
             k = 0
-            while(maks == False):
+            while(maks == False and  (S_point + j + 2) < len(self.data_icg)):
                 fp = second_der[S_point + j]
                 mp = second_der[S_point + j + 1]
                 lp = second_der[S_point + j + 2]
-                if(mp > fp and mp> lp and k == 0):
-                    k += 1
-                elif(mp > fp and mp > lp and k == 1):
+                if(mp > fp and mp> lp and k == 1):
                     maks = True
                     index = S_point + j + 1
                     B_points.append(index)
+                elif(mp > fp and mp > lp):
+                    k += 1
                 j += 1
         return np.array(B_points)
 
